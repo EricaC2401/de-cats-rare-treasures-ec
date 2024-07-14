@@ -1,7 +1,7 @@
 '''This module is the entrypoint for the `Cat's Rare Treasures` FastAPI app.'''
 
-from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Query, HTTPException, Request
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError
 from db.utils import connect_to_db_and_get_formatted_result, get_treasures_query, get_valid_colours_from_db, get_insert_treasures_query,\
                     get_params_from_new_treasure, get_update_treasures_query, get_delete_treasures_query, get_shops_query
@@ -9,11 +9,14 @@ from typing import Optional, Annotated, Literal
 from enum import Enum
 from pydantic import BaseModel, ValidationError
 from pg8000 import DatabaseError
-#from fastapi.templating import Jinja2Templates
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-#templates = Jinja2Templates(directory="templates")
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+templates = Jinja2Templates(directory="templates")
 
 
 # class SortBy(str, Enum):
@@ -62,8 +65,9 @@ def handle_request_validation(request, exc):
 def handle_general_exception(request, exc):
     return JSONResponse(status_code=500, content={'detail':'Interal Server Error'})
 
-@app.get('/api/treasures')
-def get_treasures(sort_by: 
+@app.get('/api/treasures', response_class=HTMLResponse)
+def get_treasures(request:Request,
+                sort_by: 
                 Optional[str] = 
                 Query(default='age', description='Field to sort by', examples='age', pattern='^(?i)(age|cost_at_auction|treasure_name|treasure_id)$'), 
                 order:
@@ -123,7 +127,7 @@ def get_treasures(sort_by:
     #    response = connect_to_db_and_get_formatted_result(query_str, 'treasures')
     if not response and page > 1:
         raise HTTPException(status_code=404, detail='Page not found')
-    return response
+    return templates.TemplateResponse(request, name='treasures.html', context=response)
 
     # except HTTPException as http_err:
     #     print(http_err)

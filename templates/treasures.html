@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasures</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>Treasures</h1>
+
+    <div class="treasure-list">
+        {% if treasures %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Treasure Name</th>
+                        <th>Age</th>
+                        <th>Colour</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treasure in treasures %}
+                        <tr>
+                            <td>{{ treasure.treasure_name }}</td>
+                            <td>{{ treasure.age }}</td>
+                            <td>{{ treasure.colour }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No treasures found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
