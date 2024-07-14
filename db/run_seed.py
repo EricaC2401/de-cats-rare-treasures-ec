@@ -6,8 +6,8 @@ import os
 TESTING = os.getenv('TESTING')
 
 try:
-    if TESTING and TESTING.lower() == 'test':
-        seed_db('test')
+    if TESTING:
+        seed_db(TESTING.lower())
     else:
         seed_db('dev')
 except Exception as e:

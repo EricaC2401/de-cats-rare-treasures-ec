@@ -11,7 +11,7 @@ import json
 def test_client():
     return TestClient(app)
 
-@pytest.fixture(autouse=True) # default to be function
+@pytest.fixture(autouse=True) # scope default to be function
 def reset_db():
     try:
         seed_db('test')
@@ -41,7 +41,7 @@ class TestGetTreasures:
         assert len(response_treasures) == 26
         assert response_treasures == sorted(response_treasures, key=lambda x: x['age'])
 
-    @pytest.mark.it('\nTest if get_treasures return 404 status code with bad request')
+    @pytest.mark.it('Test if get_treasures return 404 status code with bad request')
     def test_404_error(self, test_client):
         response = test_client.get('/api/treasurs')
         assert response.status_code == 404
@@ -361,6 +361,7 @@ class TestDeleteTreasures:
     def test_404_delete_treausre_unavailable_id(self, test_client):
         response = test_client.delete('/api/treasures/123')
         assert response.status_code == 404
+        assert response.json()['details'] == 'Page Not Found'
 
 
 class TestGetShops:

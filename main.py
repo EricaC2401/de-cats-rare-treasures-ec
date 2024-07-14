@@ -7,16 +7,16 @@ from db.utils import connect_to_db_and_get_formatted_result, get_treasures_query
                     get_params_from_new_treasure, get_update_treasures_query, get_delete_treasures_query, get_shops_query
 from typing import Optional, Annotated, Literal
 from enum import Enum
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from pg8000 import DatabaseError
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-app.mount('/static', StaticFiles(directory='static'), name='static')
+#app.mount('/static', StaticFiles(directory='static'), name='static')
 
-templates = Jinja2Templates(directory="templates")
+#templates = Jinja2Templates(directory="templates")
 
 
 # class SortBy(str, Enum):
@@ -28,6 +28,7 @@ templates = Jinja2Templates(directory="templates")
 #     ASC = 'ASC'
 #     DESC = 'DESC'
 
+# order of defining handlers matters
 @app.exception_handler(DatabaseError)
 def handle_db_error(request, exc):
     print(exc)
@@ -65,8 +66,8 @@ def handle_request_validation(request, exc):
 def handle_general_exception(request, exc):
     return JSONResponse(status_code=500, content={'detail':'Interal Server Error'})
 
-@app.get('/api/treasures', response_class=HTMLResponse)
-def get_treasures(request:Request,
+@app.get('/api/treasures') # , response_class=HTMLResponse
+def get_treasures(#request:Request,
                 sort_by: 
                 Optional[str] = 
                 Query(default='age', description='Field to sort by', examples='age', pattern='^(?i)(age|cost_at_auction|treasure_name|treasure_id)$'), 
@@ -95,7 +96,6 @@ def get_treasures(request:Request,
     params = {}
     if colour:
         colour_list = get_valid_colours_from_db()
-        colour_list = [item for sublist in colour_list for item in sublist]
         if colour.lower() not in colour_list:
             raise HTTPException(status_code=422, detail="There is no such colour in the database, please try another one")
         query_str += ' WHERE colour = :colour'
@@ -127,7 +127,8 @@ def get_treasures(request:Request,
     #    response = connect_to_db_and_get_formatted_result(query_str, 'treasures')
     if not response and page > 1:
         raise HTTPException(status_code=404, detail='Page not found')
-    return templates.TemplateResponse(request, name='treasures.html', context=response)
+    return response
+    #return templates.TemplateResponse(request, name='treasures.html', context=response)
 
     # except HTTPException as http_err:
     #     print(http_err)

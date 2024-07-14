@@ -53,6 +53,7 @@ def get_valid_colours_from_db():
     conn = connect_to_db()
     colour_list = conn.run('''SELECT DISTINCT colour from treasures;''')
     conn.close()
+    colour_list = [item for sublist in colour_list for item in sublist]
     return colour_list
 
 def get_insert_treasures_query():
