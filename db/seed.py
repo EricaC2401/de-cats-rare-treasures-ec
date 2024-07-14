@@ -1,8 +1,9 @@
-from db.connection import connect_to_db
+from db.connection import connect_to_db, load_enviroment
 import json
 
 
 def seed_db(env='test'):
+    load_enviroment(env)
     print("\U0001FAB4", "Seeding Database...")
     db = connect_to_db()
     db.run("DROP TABLE if exists treasures")
